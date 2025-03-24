@@ -24,6 +24,7 @@ class BackgroundServiceHandler {
   Timer? _locationUpdateTimer;
   LocationTimeSummary? _currentSummary;
   bool _isRunning = true;
+  Map<String, int> todayDurations = {};
 
   BackgroundServiceHandler({
     GeolocatorLocationService? locationService,
@@ -90,7 +91,9 @@ class BackgroundServiceHandler {
   ) async {
     _currentSummary = _backgroundTrackLogic.calculateLocationDurationSummary(
       locationData,
+      todayDurations,
     );
+    todayDurations = _currentSummary!.locationDurations;
     log('Today time summary: ${_currentSummary!.toMap()}');
     service.invoke(
       ServicePortKey.updateLocationSummary,

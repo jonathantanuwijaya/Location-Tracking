@@ -6,41 +6,32 @@ import 'package:tracking_practice/services/app_services/service_background.dart'
 
 /// Provider class for managing clock in/out functionality and geofence data
 class ClockInOutProvider extends ChangeNotifier {
-  /// Creates a new [ClockInOutProvider] instance
-  ClockInOutProvider(this._serviceBackground, this._locationStorageService) {
-    _initializeProvider();
-  }
+  final ServiceBackground serviceBackground;
+  final LocationStorageService locationStorageService;
 
-  final ServiceBackground _serviceBackground;
-  final LocationStorageService _locationStorageService;
   bool _isClockedIn = false;
   List<GeofenceData> _geofenceData = [];
   String? _error;
 
-  /// Whether the user is currently clocked in
+  ClockInOutProvider(this.serviceBackground, this.locationStorageService);
+
   bool get isClockedIn => _isClockedIn;
-
-  /// List of all geofence data
   List<GeofenceData> get geofenceData => List.unmodifiable(_geofenceData);
-
-  /// Any error that occurred during operations
   String? get error => _error;
 
-  Future<void> _initializeProvider() async {
+  Future<void> initialize() async {
     try {
-      final status = await _serviceBackground.isRunning();
-      _isClockedIn = status;
-      _geofenceData = await _locationStorageService.getAllGeofenceData();
+      _isClockedIn = await serviceBackground.isRunning();
+      _geofenceData = await locationStorageService.getAllGeofenceData();
       notifyListeners();
     } catch (e) {
       _handleError('Failed to initialize provider', e);
     }
   }
 
-  /// Clock in the user and start background service
   Future<void> clockIn() async {
     try {
-      await _serviceBackground.start();
+      await serviceBackground.start();
       _isClockedIn = true;
       _error = null;
       notifyListeners();
@@ -49,10 +40,9 @@ class ClockInOutProvider extends ChangeNotifier {
     }
   }
 
-  /// Clock out the user and stop background service
   Future<void> clockOut() async {
     try {
-      await _serviceBackground.stop();
+      await serviceBackground.stop();
       _isClockedIn = false;
       _error = null;
       notifyListeners();
@@ -80,9 +70,11 @@ class ClockInOutProvider extends ChangeNotifier {
     return null;
   }
 
-  /// Validates and saves new geofence data
-  Future<(bool, String?)> validateAndSaveGeofenceData(String latitude, String longitude, String name) async {
-    // Validate inputs
+  Future<(bool, String?)> validateAndSaveGeofenceData(
+    String latitude,
+    String longitude,
+    String name,
+  ) async {
     final latitudeError = validateCoordinate(latitude);
     final longitudeError = validateCoordinate(longitude);
     final nameError = validateName(name);
@@ -97,9 +89,8 @@ class ClockInOutProvider extends ChangeNotifier {
         longitude: double.parse(longitude),
         name: name,
       );
-
-      await _locationStorageService.storeGeofenceData(geofenceData);
-      _geofenceData = await _locationStorageService.getAllGeofenceData();
+      await locationStorageService.storeGeofenceData(geofenceData);
+      _geofenceData = await locationStorageService.getAllGeofenceData();
       _error = null;
       notifyListeners();
       return (true, null);
@@ -109,11 +100,9 @@ class ClockInOutProvider extends ChangeNotifier {
     }
   }
 
-  /// Refresh the current service status
   Future<void> refreshServiceStatus() async {
     try {
-      final status = await _serviceBackground.isRunning();
-      _isClockedIn = status;
+      _isClockedIn = await serviceBackground.isRunning();
       _error = null;
       notifyListeners();
     } catch (e) {

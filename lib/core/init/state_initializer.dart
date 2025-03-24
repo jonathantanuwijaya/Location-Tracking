@@ -32,7 +32,7 @@ class StateInitializer extends StatelessWidget {
               (context) => ClockInOutProvider(
                 ServiceBackground.instance,
                 LocationStorageService(),
-              ),
+              )..initialize(),
         ),
         ChangeNotifierProvider<MainTabViewProvider>(
           create: (context) => MainTabViewProvider(),

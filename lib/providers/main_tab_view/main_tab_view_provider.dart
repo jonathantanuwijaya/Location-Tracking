@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:tracking_practice/providers/main_tab_view/main_tab_view_state.dart';
 
 class MainTabViewProvider extends ChangeNotifier {
-  MainTabViewState _state = MainTabViewState.initial();
+  int _selectedIndex = 0;
 
-  MainTabViewState get state => _state;
+  int get selectedIndex => _selectedIndex;
 
   void changeTab(int index) {
-    _state = _state.copyWith(selectedIndex: index);
-    notifyListeners();
+    if (_selectedIndex != index) {
+      _selectedIndex = index;
+      notifyListeners();
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tracking_practice/core/constants/app_sizes.dart';
 import 'package:tracking_practice/providers/main_tab_view/main_tab_view_provider.dart';
 import 'package:tracking_practice/screens/clock_in_out_page.dart';
 import 'package:tracking_practice/screens/location_time_summary_page.dart';
@@ -21,7 +22,7 @@ class _MainPageState extends State<MainPage> {
     const ClockInOutPage(),
     const Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(Sizes.p16),
         child: LocationTimeSummaryPage(),
       ),
     ),
@@ -31,8 +32,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Consumer<MainTabViewProvider>(
       builder: (context, provider, child) {
-        final state = provider.state;
-        final selectedIndex = state.selectedIndex;
+        final selectedIndex = provider.selectedIndex;
         return Scaffold(
           appBar: AppBar(
             actions: [
@@ -44,7 +44,7 @@ class _MainPageState extends State<MainPage> {
                     isScrollControlled: true,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(16.0),
+                        top: Radius.circular(Sizes.p16),
                       ),
                     ),
                     builder: (context) => const GeofenceDataBottomSheet(),
@@ -60,7 +60,7 @@ class _MainPageState extends State<MainPage> {
                     isScrollControlled: true,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(16.0),
+                        top: Radius.circular(Sizes.p16),
                       ),
                     ),
                     builder: (context) => const HistorySummaryBottomSheet(),

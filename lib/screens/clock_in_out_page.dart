@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tracking_practice/core/constants/app_sizes.dart';
 import 'package:tracking_practice/providers/clock_in_out/clock_in_out_provider.dart';
 import 'package:tracking_practice/screens/widgets/add_geofence_bottom_sheet.dart';
 
@@ -17,32 +18,40 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
     Provider.of<ClockInOutProvider>(
       context,
       listen: false,
-    ).checkServiceStatus();
+    ).refreshServiceStatus();
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ClockInOutProvider>(
       builder: (context, clockInOutProvider, child) {
-        final state = clockInOutProvider.state;
+        if (clockInOutProvider.error != null) {
+          return Center(child: Text('Error: ${clockInOutProvider.error}'));
+        }
+
         return Scaffold(
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  state.isClockedIn ? Icons.timer : Icons.timer_off,
+                  clockInOutProvider.isClockedIn
+                      ? Icons.timer
+                      : Icons.timer_off,
                   size: 100,
-                  color: state.isClockedIn ? Colors.green : Colors.red,
+                  color:
+                      clockInOutProvider.isClockedIn
+                          ? Colors.green
+                          : Colors.red,
                 ),
-                const SizedBox(height: 20),
+                gapH20,
                 Text(
-                  state.isClockedIn
+                  clockInOutProvider.isClockedIn
                       ? 'Currently Clocked In'
                       : 'Currently Clocked Out',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: 40),
+                gapH40,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -50,11 +59,11 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
                       onPressed: () => clockInOutProvider.clockIn(),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 40,
-                          vertical: 15,
+                          horizontal: Sizes.p40,
+                          vertical: Sizes.p16,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(Sizes.p30),
                         ),
                       ),
                       child: Text('Clock In'),
@@ -63,18 +72,18 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
                       onPressed: clockInOutProvider.clockOut,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 40,
-                          vertical: 15,
+                          horizontal: Sizes.p40,
+                          vertical: Sizes.p16,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(Sizes.p30),
                         ),
                       ),
                       child: Text('Clock Out'),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                gapH20,
                 ElevatedButton.icon(
                   onPressed:
                       () => _showAddGeofenceBottomSheet(
@@ -83,11 +92,11 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
                       ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 15,
+                      horizontal: Sizes.p40,
+                      vertical: Sizes.p16,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(Sizes.p30),
                     ),
                   ),
                   icon: const Icon(Icons.add_location),
@@ -113,7 +122,7 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Sizes.p20)),
       ),
       builder: (context) {
         return AddGeofence(

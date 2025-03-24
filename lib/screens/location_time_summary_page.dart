@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tracking_practice/core/constants/app_sizes.dart';
 import 'package:tracking_practice/core/util/datetime_extension.dart';
 import 'package:tracking_practice/providers/location_time_summary/location_time_summary_provider.dart';
 
@@ -11,12 +12,11 @@ class LocationTimeSummaryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<LocationTimeSummaryProvider>(
       builder: (context, provider, child) {
-        final state = provider.state;
-        if (state.error != null) {
-          return Center(child: Text('Error: ${state.error}'));
+        if (provider.error != null) {
+          return Center(child: Text('Error: ${provider.error}'));
         }
 
-        final summary = state.summary;
+        final summary = provider.summary;
         if (summary == null) {
           return const Center(child: Text('No data available'));
         }
@@ -24,7 +24,7 @@ class LocationTimeSummaryPage extends StatelessWidget {
         final formattedDurations = summary.getFormattedDurations();
 
         return Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(Sizes.p16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -32,15 +32,15 @@ class LocationTimeSummaryPage extends StatelessWidget {
                 'Summary Page',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 32.0),
+              gapH32,
               Text(
                 summary.date.formalDate,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 16.0),
+              gapH16,
               ...formattedDurations.entries.map(
                 (entry) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: Sizes.p8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

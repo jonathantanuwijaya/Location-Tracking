@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:tracking_practice/core/constants/app_sizes.dart';
 import 'package:tracking_practice/models/geofence_data.dart';
-import 'package:tracking_practice/services/logic/location_storage_service.dart';
+import 'package:tracking_practice/screens/widgets/base/base_bottom_sheet.dart';
+import 'package:tracking_practice/screens/widgets/base/base_empty_state.dart';
+import 'package:tracking_practice/screens/widgets/base/base_error_state.dart';
+import 'package:tracking_practice/services/app_services/location_storage_service.dart';
 
 class GeofenceDataBottomSheet extends StatefulWidget {
   const GeofenceDataBottomSheet({super.key});
 
   @override
-  State<GeofenceDataBottomSheet> createState() => _GeofenceDataBottomSheetState();
+  State<GeofenceDataBottomSheet> createState() =>
+      _GeofenceDataBottomSheetState();
 }
 
 class _GeofenceDataBottomSheetState extends State<GeofenceDataBottomSheet> {
@@ -43,84 +48,30 @@ class _GeofenceDataBottomSheetState extends State<GeofenceDataBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.6,
-      minChildSize: 0.3,
-      maxChildSize: 0.9,
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2.0),
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Geofence Locations',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: _loadGeofenceData,
-                    tooltip: 'Refresh geofence data',
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              Expanded(child: _buildContent(scrollController)),
-            ],
-          ),
-        );
-      },
+    return BaseBottomSheet(
+      title: 'Geofence Locations',
+      onRefresh: _loadGeofenceData,
+      content: _buildContent(),
     );
   }
 
-  Widget _buildContent(ScrollController scrollController) {
+  Widget _buildContent() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.red),
-            const SizedBox(height: 16),
-            Text('Error: $_error'),
-          ],
-        ),
-      );
+      return BaseErrorState(error: _error!);
     }
 
     if (_geofenceData.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.location_off, size: 48, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('No geofence locations available'),
-          ],
-        ),
+      return const BaseEmptyState(
+        message: 'No geofence locations available',
+        icon: Icons.location_off,
       );
     }
 
     return ListView.builder(
-      controller: scrollController,
       itemCount: _geofenceData.length,
       itemBuilder: (context, index) {
         final geofence = _geofenceData[index];
@@ -134,17 +85,17 @@ class _GeofenceDataBottomSheetState extends State<GeofenceDataBottomSheet> {
       margin: const EdgeInsets.only(bottom: 16.0),
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(Sizes.p16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               geofence.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8.0),
+            gapH8,
             const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,7 +104,7 @@ class _GeofenceDataBottomSheetState extends State<GeofenceDataBottomSheet> {
                 Text(geofence.latitude.toStringAsFixed(6)),
               ],
             ),
-            const SizedBox(height: 4.0),
+            gapH4,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

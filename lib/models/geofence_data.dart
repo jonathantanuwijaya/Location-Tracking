@@ -1,3 +1,5 @@
+import 'package:geolocator/geolocator.dart';
+
 class GeofenceData {
   /// Creates a new [GeofenceData] instance
   GeofenceData({
@@ -14,6 +16,13 @@ class GeofenceData {
       name: json['name'] as String,
     );
   }
+  factory GeofenceData.fromPosition(Position position, String name) {
+    return GeofenceData(
+      latitude: position.latitude,
+      longitude: position.longitude,
+      name: name,
+    );
+  }
 
   /// The latitude coordinate
   final double latitude;
@@ -26,10 +35,6 @@ class GeofenceData {
 
   /// Converts this geofence data to a map for serialization
   Map<String, dynamic> toMap() {
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'name': name,
-    };
+    return {'latitude': latitude, 'longitude': longitude, 'name': name};
   }
 }

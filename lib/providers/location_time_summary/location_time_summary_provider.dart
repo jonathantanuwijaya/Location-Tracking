@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:tracking_practice/providers/location_time_summary/location_time_summary_state.dart';
+import 'package:tracking_practice/models/location_time_summary.dart';
 import 'package:tracking_practice/services/repository/location_time_summary_repository.dart';
 
 /// Provider class for managing location time summary data
@@ -14,22 +14,38 @@ class LocationTimeSummaryProvider extends ChangeNotifier {
   final LocationTimeSummaryRepository _repository;
   StreamSubscription? _subscription;
 
-  /// Current state of the location time summary
-  LocationTimeSummaryState _state = LocationTimeSummaryState.initial();
+  /// The current location time summary
+  LocationTimeSummary? _summary;
 
-  /// Getter for the current state
-  LocationTimeSummaryState get state => _state;
+  /// Whether the provider is currently loading
+  bool _isLoading = false;
+
+  /// Any error that occurred while loading the data
+  String? _error;
+
+  /// Getter for the current summary
+  LocationTimeSummary? get summary => _summary;
+
+  /// Getter for loading state
+  bool get isLoading => _isLoading;
+
+  /// Getter for error state
+  String? get error => _error;
 
   void _initializeStream() {
+    _isLoading = true;
     notifyListeners();
 
-    _subscription = _repository.getLocationTimeSummaryUpdates().listen(
+    _subscription = _repository.getLocationUpdates().listen(
       (summary) {
-        _state = _state.copyWith(isLoading: false, summary: summary);
+        _summary = summary;
+        _isLoading = false;
+        _error = null;
         notifyListeners();
       },
       onError: (error) {
-        _state = LocationTimeSummaryState.error(error.toString());
+        _error = error.toString();
+        _isLoading = false;
         notifyListeners();
       },
     );

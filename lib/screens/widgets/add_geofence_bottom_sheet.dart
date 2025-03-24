@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tracking_practice/models/geofence_data.dart';
+import 'package:tracking_practice/core/constants/app_sizes.dart';
 import 'package:tracking_practice/providers/clock_in_out/clock_in_out_provider.dart';
+import 'package:tracking_practice/screens/widgets/base/base_bottom_sheet.dart';
+import 'package:tracking_practice/screens/widgets/base/base_form_field.dart';
 
 class AddGeofence extends StatelessWidget {
   const AddGeofence({
@@ -15,95 +17,65 @@ class AddGeofence extends StatelessWidget {
   final TextEditingController longitudeController;
   final TextEditingController nameController;
 
+  void _handleSave(BuildContext context) async {
+    final (success, error) = await provider.validateAndSaveGeofenceData(
+      latitudeController.text,
+      longitudeController.text,
+      nameController.text,
+    );
+
+    if (success) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error ?? 'Failed to save geofence data')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16,
-        right: 16,
-        top: 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Add Geofence',
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          TextField(
-            controller: latitudeController,
-            decoration: const InputDecoration(
+    return BaseBottomSheet(
+      title: 'Add Geofence',
+      content: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            BaseFormField(
+              controller: latitudeController,
               labelText: 'Latitude',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: longitudeController,
-            decoration: const InputDecoration(
-              labelText: 'Longitude',
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              labelText: 'Name',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Validate inputs
-              if (latitudeController.text.isEmpty ||
-                  longitudeController.text.isEmpty ||
-                  nameController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('All fields are required')),
-                );
-                return;
-              }
-
-              try {
-                final latitude = double.parse(latitudeController.text);
-                final longitude = double.parse(longitudeController.text);
-                final name = nameController.text;
-
-                // Create GeofenceData and save
-                final geofenceData = GeofenceData(
-                  latitude: latitude,
-                  longitude: longitude,
-                  name: name,
-                );
-
-                provider.saveGeofenceData(geofenceData);
-                Navigator.pop(context);
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Invalid latitude or longitude format'),
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
               ),
             ),
-            child: const Text('Save'),
-          ),
-          const SizedBox(height: 16),
-        ],
+            gapH12,
+            BaseFormField(
+              controller: longitudeController,
+              labelText: 'Longitude',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+            ),
+            gapH12,
+            BaseFormField(controller: nameController, labelText: 'Name'),
+            gapH20,
+            ElevatedButton(
+              onPressed: () => _handleSave(context),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: const Text('Save'),
+            ),
+            gapH16,
+          ],
+        ),
       ),
     );
   }

@@ -10,13 +10,24 @@ A Flutter application for tracking user location in the background and calculati
 - Clock in/out functionality
 - Historical data viewing
 
+## Project Architecture
+
+The application follows a layered architecture with a repository pattern:
+
+- **User Interface Layer**: Screens, widgets, and providers for state management
+- **Service Layer**: Business logic services and background processing
+- **Repository Layer**: Data access and persistence
+- **Core Layer**: Interfaces, utilities, and constants
+
 ## Project Structure
 
 ```
 lib/
-├── core/                  # Core utilities and constants
-│   ├── constants/         # Application constants
-│   └── util/              # Utility classes and extensions
+├── core/                  # Core utilities, constants, and interfaces
+│   ├── constants/         # Application constants 
+│   ├── init/              # Application initialization
+│   ├── interfaces/        # Interfaces for repository pattern
+│   └── util/              # Utility classes and adapters
 ├── models/                # Data models
 │   ├── geofence_data.dart # Geofence location model
 │   ├── location_data.dart # Current location model
@@ -32,13 +43,19 @@ lib/
 │   ├── location_time_summary_page.dart # Location summary screen
 │   └── main_page.dart     # Main application screen
 └── services/              # Business logic services
-    ├── logic/             # Core business logic
-    │   ├── background_service_manager.dart # Background service management
+    ├── app_services/      # Application services
+    │   ├── location_data_service.dart # Location data processing
     │   ├── location_service.dart # Location detection service
-    │   ├── location_storage_service.dart # Data persistence service
+    │   └── location_storage_service.dart # Data persistence service
+    ├── background/        # Background processing
+    │   ├── background_service_handler.dart # Background service handler
     │   └── service_background.dart # Background service initialization
+    ├── logic/             # Core business logic
+    │   ├── background_track_logic.dart # Background tracking logic
+    │   ├── location_tracking_logic.dart # Location tracking logic
+    │   └── mappers_logic.dart # Data mapping logic
     └── repository/        # Data repositories
-        └── location_time_summary_repository.dart # Location data repository
+        ├── location_summary_repository.dart # Location summary updates
 ```
 
 ## Dependencies
@@ -52,31 +69,83 @@ lib/
 - **provider**: ^6.1.2 - For state management
 - **intl**: ^0.19.0 - For date and time formatting
 - **path** & **path_provider**: ^1.9.1, ^2.1.5 - For file system operations
+- **get_it**: ^7.6.7 - For dependency injection
+- **mocktail**: ^1.0.4 - For creating test mocks
+- **flutter_localizations** - For internationalization support
 
 ### Dev Dependencies
 
-- **flutter_lints**: ^5.0.0 - For code quality
-- **hive_generator**: ^2.0.1 - For Hive model generation
+- **flutter_test** - For widget and unit testing
+- **integration_test** - For integration testing
+- **very_good_analysis**: ^6.0.0 - For code quality and linting
 
-## How It Works
+## Testing
 
-1. The application uses Flutter's background service to track the user's location even when the app is not in the foreground.
-2. Geofence locations can be defined by the user and are stored locally using Hive.
-3. The background service periodically checks the user's location and determines if they are within any defined geofence.
-4. Time spent in each location is tracked and summarized.
-5. Users can clock in/out to start/stop the tracking service.
-6. Historical data can be viewed to see time spent at different locations over time.
+The application includes multiple levels of testing:
+
+### Unit Tests
+
+Unit tests verify the functionality of individual components, particularly the service and repository layers.
+
+```
+test/
+├── fixtures/              # Test fixtures and mock data
+├── providers/             # Provider tests
+├── screens/               # Widget tests for screens
+└── services/              # Service and repository tests
+```
+
+### Widget Tests
+
+Widget tests verify UI components and their integration with providers.
+
+Key tests include:
+- Main page navigation and tab switching
+- Location time summary display
+- Geofence data interaction
+- Clock in/out functionality
+
+### Integration Tests
+
+Simple integration tests to verify app launch stability on both Android and iOS platforms.
+
+```
+integration_test/
+└── app_test.dart          # Basic app launch tests
+```
+
+To run tests:
+
+```bash
+# Unit and widget tests
+flutter test
+
+# Integration tests (Android)
+flutter test integration_test/app_test.dart -d android
+
+# Integration tests (iOS)
+flutter test integration_test/app_test.dart -d ios
+```
+
+## Repository Pattern
+
+The application implements the repository pattern to separate data access logic from business logic:
+
+- **Interfaces**: Define contracts for repositories and services
+- **Repositories**: Implement data access and storage operations
+- **Services**: Use repositories to perform business logic
+
+This architecture makes the code more:
+- **Testable**: Easy to mock dependencies for testing
+- **Maintainable**: Clear separation of concerns
+- **Extensible**: New data sources can be added by implementing interfaces
 
 ## Getting Started
 
 1. Clone the repository
-2. Ensure you have Flutter 3.29.2 installed
+2. Ensure you have Flutter SDK version ^3.7.0 installed
 3. Run `flutter pub get` to install dependencies
 4. Ensure location permissions are properly set up in your device settings
 5. Run the app using `flutter run`
 
-> **Note:** This project was built using Flutter 3.29.2
-
-## Platform Support
-
-This application supports both Android and iOS platforms with appropriate configurations for background location tracking on each platform.
+> **Note:** This project requires Flutter SDK version ^3.7.0 or higher.

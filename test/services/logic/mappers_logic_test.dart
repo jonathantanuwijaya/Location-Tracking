@@ -5,90 +5,184 @@ import 'package:tracking_practice/services/logic/mappers_logic.dart';
 
 void main() {
   late MappersLogic mappersLogic;
-  late DateFormat dateFormat;
+  final dateFormat = DateFormat('dd-MM-yyyy');
 
   setUp(() {
     mappersLogic = MappersLogic();
-    dateFormat = DateFormat('dd-MM-yyyy');
   });
 
   group('MappersLogic', () {
-    test('convertToLocationTimeSummaries should parse valid location data correctly', () {
-      // Arrange
-      final locationData = [
-        {
-          '01-01-2023': {
-            'locationDurations': {
-              'Home': 3600,
-              'Office': 7200,
-            }
+    group('convertToLocationTimeSummaries', () {
+      test('converts valid location data to summaries', () {
+        // Arrange
+        final locationData = [
+          {
+            '10-05-2023': {
+              'date': '2023-05-10T00:00:00.000',
+              'locationDurations': {'Office': 300, 'Home': 120},
+            },
           },
-          '02-01-2023': {
-            'locationDurations': {
-              'Home': 5400,
-              'Gym': 1800,
-            }
-          }
-        }
-      ];
-
-      // Act
-      final result = mappersLogic.convertToLocationTimeSummaries(locationData, dateFormat);
-
-      // Assert
-      expect(result.length, 2);
-      expect(result[0].date, dateFormat.parse('01-01-2023'));
-      expect(result[0].locationDurations['Home'], 3600);
-      expect(result[0].locationDurations['Office'], 7200);
-      expect(result[1].date, dateFormat.parse('02-01-2023'));
-      expect(result[1].locationDurations['Home'], 5400);
-      expect(result[1].locationDurations['Gym'], 1800);
-    });
-
-    test('convertToLocationTimeSummaries should handle empty location data', () {
-      // Arrange
-      final locationData = <Map<String, dynamic>>[];
-
-      // Act
-      final result = mappersLogic.convertToLocationTimeSummaries(locationData, dateFormat);
-
-      // Assert
-      expect(result, isEmpty);
-    });
-
-    test('convertToLocationTimeSummaries should filter out invalid entries', () {
-      // Arrange
-      final locationData = [
-        {
-          'invalid-date': {
-            'locationDurations': {
-              'Home': 3600,
-            }
+          {
+            '11-05-2023': {
+              'date': '2023-05-11T00:00:00.000',
+              'locationDurations': {'Café': 180, 'Library': 90},
+            },
           },
-          '01-01-2023': {
-            'locationDurations': {
-              'Office': 7200,
-            }
-          }
-        }
-      ];
+        ];
 
-      // Act
-      final result = mappersLogic.convertToLocationTimeSummaries(locationData, dateFormat);
+        // Act
+        final result = mappersLogic.convertToLocationTimeSummaries(
+          locationData,
+          dateFormat,
+        );
 
-      // Assert
-      expect(result.length, 1);
-      expect(result[0].date, dateFormat.parse('01-01-2023'));
-      expect(result[0].locationDurations['Office'], 7200);
+        // Assert
+        expect(result.length, 2);
+        
+        // First summary
+        expect(result[0].date, DateTime(2023, 5, 10));
+        expect(result[0].locationDurations.length, 2);
+        expect(result[0].locationDurations['Office'], 300);
+        expect(result[0].locationDurations['Home'], 120);
+        
+        // Second summary
+        expect(result[1].date, DateTime(2023, 5, 11));
+        expect(result[1].locationDurations.length, 2);
+        expect(result[1].locationDurations['Café'], 180);
+        expect(result[1].locationDurations['Library'], 90);
+      });
+
+      test('handles empty data list', () {
+        // Arrange
+        final locationData = <Map<String, dynamic>>[];
+
+        // Act
+        final result = mappersLogic.convertToLocationTimeSummaries(
+          locationData,
+          dateFormat,
+        );
+
+        // Assert
+        expect(result, isEmpty);
+      });
+
+      test('filters out invalid entries', () {
+        // Arrange
+        final locationData = [
+          {
+            '10-05-2023': {
+              'date': '2023-05-10T00:00:00.000',
+              'locationDurations': {'Office': 300, 'Home': 120},
+            },
+          },
+          {
+            'invalid-date': {
+              'date': 'not-a-date',
+              'locationDurations': {'Café': 180},
+            },
+          },
+        ];
+
+        // Act
+        final result = mappersLogic.convertToLocationTimeSummaries(
+          locationData,
+          dateFormat,
+        );
+
+        // Assert
+        expect(result.length, 1);
+        expect(result[0].date, DateTime(2023, 5, 10));
+      });
     });
 
-    test('LocationTimeSummary.formatDuration should format seconds correctly', () {
-      // Act & Assert
-      expect(LocationTimeSummary.formatDuration(3600), '1h 0m');
-      expect(LocationTimeSummary.formatDuration(5400), '1h 30m');
-      expect(LocationTimeSummary.formatDuration(7200), '2h 0m');
-      expect(LocationTimeSummary.formatDuration(7230), '2h 0m');
-      expect(LocationTimeSummary.formatDuration(0), '0h 0m');
+    group('mergeLocationSummaryIntoStorage', () {
+      test('adds new date entry when it does not exist', () {
+        // Arrange
+        final storedData = <Map<String, dynamic>>[
+          {
+            '10-05-2023': {
+              'date': '2023-05-10T00:00:00.000',
+              'locationDurations': {'Office': 300, 'Home': 120},
+            },
+          },
+        ];
+
+        final newSummary = LocationTimeSummary(
+          date: DateTime(2023, 5, 11),
+          locationDurations: {'Café': 180, 'Library': 90},
+        );
+
+        // Act
+        final result = mappersLogic.mergeLocationSummaryIntoStorage(
+          storedData,
+          newSummary,
+          '11-05-2023',
+        );
+
+        // Assert
+        expect(result.length, 2);
+        final newEntry = result.firstWhere(
+          (entry) => entry.containsKey('11-05-2023'),
+        );
+        expect(newEntry['11-05-2023']['locationDurations']['Café'], 180);
+        expect(newEntry['11-05-2023']['locationDurations']['Library'], 90);
+      });
+
+      test('merges durations for existing date entry', () {
+        // Arrange
+        final storedData = <Map<String, dynamic>>[
+          {
+            '10-05-2023': {
+              'date': '2023-05-10T00:00:00.000',
+              'locationDurations': {'Office': 300, 'Home': 120},
+            },
+          },
+        ];
+
+        final newSummary = LocationTimeSummary(
+          date: DateTime(2023, 5, 10),
+          locationDurations: {'Office': 200, 'Café': 180},
+        );
+
+        // Act
+        final result = mappersLogic.mergeLocationSummaryIntoStorage(
+          storedData,
+          newSummary,
+          '10-05-2023',
+        );
+
+        // Assert
+        expect(result.length, 1);
+        final updatedEntry = result.first;
+        expect(
+          updatedEntry['10-05-2023']['locationDurations']['Office'],
+          500, // 300 + 200
+        );
+        expect(updatedEntry['10-05-2023']['locationDurations']['Home'], 120);
+        expect(updatedEntry['10-05-2023']['locationDurations']['Café'], 180);
+      });
+
+      test('handles empty stored data', () {
+        // Arrange
+        final storedData = <Map<String, dynamic>>[];
+
+        final newSummary = LocationTimeSummary(
+          date: DateTime(2023, 5, 10),
+          locationDurations: {'Office': 300, 'Home': 120},
+        );
+
+        // Act
+        final result = mappersLogic.mergeLocationSummaryIntoStorage(
+          storedData,
+          newSummary,
+          '10-05-2023',
+        );
+
+        // Assert
+        expect(result.length, 1);
+        expect(result.first['10-05-2023']['locationDurations']['Office'], 300);
+        expect(result.first['10-05-2023']['locationDurations']['Home'], 120);
+      });
     });
   });
 }

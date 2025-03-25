@@ -2,126 +2,144 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracking_practice/core/constants/location_constants.dart';
 import 'package:tracking_practice/core/constants/service_port_key.dart';
 import 'package:tracking_practice/core/init/app_init.dart';
-import 'package:tracking_practice/core/util/hive_storage.dart';
-import 'package:tracking_practice/models/geofence_data.dart';
+import 'package:tracking_practice/core/interfaces/i_background_service_handler.dart';
 import 'package:tracking_practice/models/location_time_summary.dart';
 import 'package:tracking_practice/services/app_services/location_service.dart';
 import 'package:tracking_practice/services/app_services/location_storage_service.dart';
+import 'package:tracking_practice/services/background/background_service_helper.dart';
 import 'package:tracking_practice/services/logic/background_track_logic.dart';
 import 'package:tracking_practice/services/logic/location_tracking_logic.dart';
 
-class BackgroundServiceHandler {
+/// Handles background service operations for location tracking
+/// Responsible for managing the service lifecycle and coordinating periodic location updates
+class BackgroundServiceHandler implements IBackgroundServiceHandler {
+  /// Creates a new [BackgroundServiceHandler] instance with optional dependencies
   BackgroundServiceHandler({
     GeolocatorLocationService? locationService,
     LocationStorageService? storageService,
     LocationTrackingLogic? trackingLogic,
     BackgroundTrackLogic? backgroundTrackLogic,
     ApplicationInitializer? appInit,
-  }) : _locationService = locationService ?? GeolocatorLocationService(),
-       _storageService = storageService ?? LocationStorageService(),
-       _trackingLogic = trackingLogic ?? LocationTrackingLogic(),
-       _backgroundTrackLogic = backgroundTrackLogic ?? BackgroundTrackLogic(),
-       _appInit = appInit ?? ApplicationInitializer();
-  final GeolocatorLocationService _locationService;
-  final LocationStorageService _storageService;
-  final LocationTrackingLogic _trackingLogic;
-  final BackgroundTrackLogic _backgroundTrackLogic;
-  final ApplicationInitializer _appInit;
+  }) {
+    final locationServiceImpl = locationService ?? GeolocatorLocationService();
+    final storageServiceImpl = storageService ?? LocationStorageService();
+    final trackingLogicImpl = trackingLogic ?? LocationTrackingLogic();
+    final backgroundTrackLogicImpl = backgroundTrackLogic ?? BackgroundTrackLogic();
+    final appInitializer = appInit ?? ApplicationInitializer();
 
-  Timer? _locationUpdateTimer;
-  LocationTimeSummary? _currentSummary;
-  bool _isRunning = true;
-  Map<String, int> todayDurations = {};
-
-  Future<void> initializeBackgroundLocationTracking(
-    ServiceInstance service,
-  ) async {
-    _startPeriodicLocationUpdates(service);
-    _registerServiceStopListener(service);
-  }
-
-  void _startPeriodicLocationUpdates(ServiceInstance service) {
-    _locationUpdateTimer = Timer.periodic(
-      const Duration(
-        seconds: LocationConstants.defaultLocationUpdateIntervalSeconds,
-      ),
-      (timer) => _processLocationUpdate(service, timer),
+    _serviceHelper = BackgroundServiceHelper(
+      locationService: locationServiceImpl,
+      storageService: storageServiceImpl,
+      trackingLogic: trackingLogicImpl,
+      backgroundTrackLogic: backgroundTrackLogicImpl,
+      appInit: appInitializer,
     );
   }
 
-  Future<void> _processLocationUpdate(
+  /// Helper for delegating complex operations
+  late final BackgroundServiceHelper _serviceHelper;
+  
+  /// Timer for scheduling periodic location updates
+  Timer? _periodicUpdateTimer;
+  
+  /// Current location summary data
+  LocationTimeSummary? _currentLocationSummary;
+  
+  /// Flag indicating if the service is running
+  bool _isServiceRunning = true;
+  
+  /// Duration records for each location
+  Map<String, int> _locationDurations = {};
+
+  @override
+  LocationTimeSummary? get currentSummary => _currentLocationSummary;
+
+  @override
+  Future<void> initializeBackgroundLocationTracking(
+    ServiceInstance service,
+  ) async {
+    startPeriodicLocationUpdates(service);
+    registerServiceStopListener(service);
+  }
+
+  @override
+  void startPeriodicLocationUpdates(ServiceInstance service) {
+    _periodicUpdateTimer = Timer.periodic(
+      const Duration(
+        seconds: LocationConstants.defaultLocationUpdateIntervalSeconds,
+      ),
+      (timer) => handlePeriodicUpdateTimer(service, timer),
+    );
+  }
+
+  /// Handles the timer callback for periodic location updates
+  /// Checks if service is running and processes the update
+  Future<void> handlePeriodicUpdateTimer(
     ServiceInstance service,
     Timer timer,
   ) async {
-    if (!_isRunning) {
+    if (!_isServiceRunning) {
       timer.cancel();
       return;
     }
 
-    /// Must to re-init and close Hive every iteration
-    /// because Hive have an issue to read data on background
     try {
-      await _appInit.initLocalStorage();
-      await _fetchAndProcessLocationData(service);
-    } catch (e) {
-      log('Error during location update: $e');
-    } finally {
-      await _closeHiveConnections();
+      await processLocationUpdate(service);
+    } catch (e, stackTrace) {
+      log(
+        'Error during periodic location update',
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
-  Future<void> _fetchAndProcessLocationData(ServiceInstance service) async {
-    final geofenceData = await _storageService.getAllGeofenceData();
-    final locationData = await _trackingLogic.checkUserPosition(
-      _locationService,
-      geofenceData,
-    );
-
-    await _updateAndBroadcastLocationSummary(service, locationData);
+  @override
+  Future<void> processLocationUpdate(ServiceInstance service) async {
+    try {
+      // Initialize storage for this update
+      await _serviceHelper.initializeStorage();
+      
+      // Process location data and update summary
+      await _serviceHelper.fetchAndProcessLocationData(
+        service,
+        _locationDurations,
+        updateLocationSummary,
+      );
+    } catch (e) {
+      log('Failed to process location update: $e');
+    } finally {
+      // Always close storage connections
+      await _serviceHelper.closeStorageConnections();
+    }
   }
 
-  /// This method will invoke the background service with that port key
-  /// after the updateLocationSummary method is finished.
-  Future<void> _updateAndBroadcastLocationSummary(
-    ServiceInstance service,
-    GeofenceData locationData,
-  ) async {
-    _currentSummary = _backgroundTrackLogic.calculateLocationDurationSummary(
-      locationData,
-      todayDurations,
-    );
-    todayDurations = _currentSummary!.locationDurations;
-    log('Today time summary: ${_currentSummary!.toMap()}');
-    service.invoke(
-      ServicePortKey.updateLocationSummary,
-      _currentSummary!.toMap(),
-    );
+  /// Updates the current location summary and durations when new data is available
+  void updateLocationSummary(
+    LocationTimeSummary summary,
+    Map<String, int> updatedDurations,
+  ) {
+    _currentLocationSummary = summary;
+    _locationDurations = updatedDurations;
   }
 
-  void _registerServiceStopListener(ServiceInstance service) {
+  /// Registers a listener for service stop events
+  void registerServiceStopListener(ServiceInstance service) {
     service.on(ServicePortKey.stopService).listen((event) async {
-      await _cleanupAndStopService(service);
+      await cleanupAndStopService(service);
     });
   }
 
-  Future<void> _cleanupAndStopService(ServiceInstance service) async {
-    if (_currentSummary != null) {
-      await _storageService.storeLocationData(_currentSummary!);
-      log('Saving data to Hive');
-    }
-
-    log('Stopping background service');
-    _isRunning = false;
-    _locationUpdateTimer?.cancel();
-    await service.stopSelf();
-  }
-
-  Future<void> _closeHiveConnections() async {
-    await HiveStorage().close();
-    await Hive.close();
+  @override
+  Future<void> cleanupAndStopService(ServiceInstance service) async {
+    // Save data and stop service
+    await _serviceHelper.cleanupAndStopService(service, _currentLocationSummary);
+    
+    // Clean up resources
+    _isServiceRunning = false;
+    _periodicUpdateTimer?.cancel();
   }
 }

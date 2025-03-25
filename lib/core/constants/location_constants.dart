@@ -5,7 +5,7 @@ class LocationConstants {
 
   /// Default distance threshold in meters
   /// Locations within this distance are considered "in range"
-  static const double defaultDistanceThresholdMeters = 50.0;
+  static const double defaultDistanceThresholdMeters = 50;
 
   /// Default location update interval in seconds
   static const int defaultLocationUpdateIntervalSeconds = 1;

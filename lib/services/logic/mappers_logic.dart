@@ -2,7 +2,8 @@ import 'package:intl/intl.dart';
 import 'package:tracking_practice/models/location_time_summary.dart';
 
 class MappersLogic {
-  /// Converts a list of location data entries into a list of [LocationTimeSummary] objects
+  /// Converts a list of location data entries into
+  /// a list of [LocationTimeSummary] objects
   ///
   /// Takes raw location data and a date format, processes each entry to create
   /// summaries of time spent at different locations for specific dates
@@ -45,7 +46,8 @@ class MappersLogic {
     );
   }
 
-  /// Merges two location duration maps by combining durations for matching locations
+  /// Merges two location duration maps by
+  /// combining durations for matching locations
   ///
   /// If a location exists in both maps, their durations are added together
   Map<String, int> _combineLocationDurations(
@@ -68,7 +70,7 @@ class MappersLogic {
     final existingIndex = storedData.indexWhere(
       (event) => event.containsKey(dateKey),
     );
-    const String durationKey = 'locationDurations';
+    const durationKey = 'locationDurations';
     if (existingIndex >= 0) {
       final existingData = Map<String, dynamic>.from(
         storedData[existingIndex][dateKey] as Map<String, dynamic>,

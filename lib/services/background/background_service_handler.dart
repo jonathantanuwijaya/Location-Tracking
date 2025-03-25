@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tracking_practice/core/constants/location_constants.dart';
 import 'package:tracking_practice/core/constants/service_port_key.dart';
 import 'package:tracking_practice/core/init/app_init.dart';
@@ -12,20 +13,8 @@ import 'package:tracking_practice/services/app_services/location_service.dart';
 import 'package:tracking_practice/services/app_services/location_storage_service.dart';
 import 'package:tracking_practice/services/logic/background_track_logic.dart';
 import 'package:tracking_practice/services/logic/location_tracking_logic.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 class BackgroundServiceHandler {
-  final GeolocatorLocationService _locationService;
-  final LocationStorageService _storageService;
-  final LocationTrackingLogic _trackingLogic;
-  final BackgroundTrackLogic _backgroundTrackLogic;
-  final ApplicationInitializer _appInit;
-
-  Timer? _locationUpdateTimer;
-  LocationTimeSummary? _currentSummary;
-  bool _isRunning = true;
-  Map<String, int> todayDurations = {};
-
   BackgroundServiceHandler({
     GeolocatorLocationService? locationService,
     LocationStorageService? storageService,
@@ -37,6 +26,16 @@ class BackgroundServiceHandler {
        _trackingLogic = trackingLogic ?? LocationTrackingLogic(),
        _backgroundTrackLogic = backgroundTrackLogic ?? BackgroundTrackLogic(),
        _appInit = appInit ?? ApplicationInitializer();
+  final GeolocatorLocationService _locationService;
+  final LocationStorageService _storageService;
+  final LocationTrackingLogic _trackingLogic;
+  final BackgroundTrackLogic _backgroundTrackLogic;
+  final ApplicationInitializer _appInit;
+
+  Timer? _locationUpdateTimer;
+  LocationTimeSummary? _currentSummary;
+  bool _isRunning = true;
+  Map<String, int> todayDurations = {};
 
   Future<void> initializeBackgroundLocationTracking(
     ServiceInstance service,
@@ -47,7 +46,9 @@ class BackgroundServiceHandler {
 
   void _startPeriodicLocationUpdates(ServiceInstance service) {
     _locationUpdateTimer = Timer.periodic(
-      Duration(seconds: LocationConstants.defaultLocationUpdateIntervalSeconds),
+      const Duration(
+        seconds: LocationConstants.defaultLocationUpdateIntervalSeconds,
+      ),
       (timer) => _processLocationUpdate(service, timer),
     );
   }
@@ -116,7 +117,7 @@ class BackgroundServiceHandler {
     log('Stopping background service');
     _isRunning = false;
     _locationUpdateTimer?.cancel();
-    service.stopSelf();
+    await service.stopSelf();
   }
 
   Future<void> _closeHiveConnections() async {

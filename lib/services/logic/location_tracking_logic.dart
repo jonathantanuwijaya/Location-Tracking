@@ -1,17 +1,17 @@
 import 'dart:developer';
 
+import 'package:tracking_practice/core/interfaces/i_location_service.dart';
 import 'package:tracking_practice/models/geofence_data.dart';
-import 'package:tracking_practice/services/app_services/location_service.dart';
 
 class LocationTrackingLogic {
   Future<GeofenceData> checkUserPosition(
-    GeolocatorLocationService locationService,
+    ILocationService locationService,
     List<GeofenceData> geofenceData,
   ) async {
     final position = await locationService.getCurrentPosition();
     log('Current position: $position');
     String? locationName;
-    for (var geofence in geofenceData) {
+    for (final geofence in geofenceData) {
       final isInRange = await locationService.isLocationInRange(
         sourceLatitude: position.latitude,
         sourceLongitude: position.longitude,

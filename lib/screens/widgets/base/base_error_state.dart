@@ -3,8 +3,8 @@ import 'package:tracking_practice/core/constants/app_sizes.dart';
 
 class BaseErrorState extends StatelessWidget {
   const BaseErrorState({
-    super.key,
     required this.error,
+    super.key,
     this.icon = Icons.error_outline,
     this.iconColor = Colors.red,
     this.iconSize = Sizes.p48,

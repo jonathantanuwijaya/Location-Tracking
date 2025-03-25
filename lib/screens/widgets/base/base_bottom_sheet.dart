@@ -3,9 +3,9 @@ import 'package:tracking_practice/core/constants/app_sizes.dart';
 
 class BaseBottomSheet extends StatelessWidget {
   const BaseBottomSheet({
-    super.key,
     required this.title,
     required this.content,
+    super.key,
     this.onRefresh,
     this.initialChildSize = 0.6,
     this.minChildSize = 0.3,
@@ -39,17 +39,14 @@ class BaseBottomSheet extends StatelessWidget {
                   height: Sizes.p4,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2.0),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                  Text(title, style: Theme.of(context).textTheme.titleLarge),
                   if (onRefresh != null)
                     IconButton(
                       icon: const Icon(Icons.refresh),

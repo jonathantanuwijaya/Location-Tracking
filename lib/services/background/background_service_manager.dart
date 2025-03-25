@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_void_async
+
 import 'dart:async';
 import 'dart:ui';
 
@@ -5,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:tracking_practice/core/constants/location_constants.dart';
 import 'package:tracking_practice/core/constants/service_port_key.dart';
-import 'package:tracking_practice/services/app_services/background_service_handler.dart';
+import 'package:tracking_practice/services/background/background_service_handler.dart';
 
 /// Manager for background service operations
 class BackgroundServiceManager {
@@ -46,8 +48,7 @@ class BackgroundServiceManager {
   }
 
   Future<void> stopService() async {
-    final service = FlutterBackgroundService();
-    service.invoke(ServicePortKey.stopService);
+    FlutterBackgroundService().invoke(ServicePortKey.stopService);
   }
 }
 

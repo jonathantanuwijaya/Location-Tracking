@@ -66,7 +66,7 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
                           borderRadius: BorderRadius.circular(Sizes.p30),
                         ),
                       ),
-                      child: Text('Clock In'),
+                      child: const Text('Clock In'),
                     ),
                     ElevatedButton(
                       onPressed: clockInOutProvider.clockOut,
@@ -79,7 +79,7 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
                           borderRadius: BorderRadius.circular(Sizes.p30),
                         ),
                       ),
-                      child: Text('Clock Out'),
+                      child: const Text('Clock Out'),
                     ),
                   ],
                 ),

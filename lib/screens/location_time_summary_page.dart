@@ -24,7 +24,7 @@ class LocationTimeSummaryPage extends StatelessWidget {
         final formattedDurations = summary.getFormattedDurations();
 
         return Padding(
-          padding: EdgeInsets.all(Sizes.p16),
+          padding: const EdgeInsets.all(Sizes.p16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

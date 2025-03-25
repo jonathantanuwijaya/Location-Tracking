@@ -3,8 +3,8 @@ import 'package:tracking_practice/core/constants/app_sizes.dart';
 
 class BaseEmptyState extends StatelessWidget {
   const BaseEmptyState({
-    super.key,
     required this.message,
+    super.key,
     this.icon = Icons.info_outline,
     this.iconColor = Colors.grey,
     this.iconSize = Sizes.p48,

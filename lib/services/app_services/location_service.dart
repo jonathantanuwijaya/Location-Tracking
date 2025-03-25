@@ -1,19 +1,8 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:tracking_practice/core/constants/location_constants.dart';
+import 'package:tracking_practice/core/interfaces/i_location_service.dart';
 
-abstract class LocationService {
-  Future<Position> getCurrentPosition();
-
-  Future<bool> isLocationInRange({
-    required double sourceLatitude,
-    required double sourceLongitude,
-    required double targetLatitude,
-    required double targetLongitude,
-    double? thresholdMeters,
-  });
-}
-
-class GeolocatorLocationService implements LocationService {
+class GeolocatorLocationService implements ILocationService {
   GeolocatorLocationService({GeolocatorPlatform? geolocatorPlatform})
     : _geolocator = geolocatorPlatform ?? GeolocatorPlatform.instance;
 

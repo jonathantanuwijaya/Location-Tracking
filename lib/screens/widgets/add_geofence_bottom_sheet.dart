@@ -6,18 +6,18 @@ import 'package:tracking_practice/screens/widgets/base/base_form_field.dart';
 
 class AddGeofence extends StatelessWidget {
   const AddGeofence({
-    super.key,
     required this.provider,
     required this.latitudeController,
     required this.longitudeController,
     required this.nameController,
+    super.key,
   });
   final ClockInOutProvider provider;
   final TextEditingController latitudeController;
   final TextEditingController longitudeController;
   final TextEditingController nameController;
 
-  void _handleSave(BuildContext context) async {
+  Future<void> _handleSave(BuildContext context) async {
     final (success, error) = await provider.validateAndSaveGeofenceData(
       latitudeController.text,
       longitudeController.text,

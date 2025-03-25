@@ -3,9 +3,9 @@ import 'package:tracking_practice/core/constants/app_sizes.dart';
 
 class BaseFormField extends StatelessWidget {
   const BaseFormField({
-    super.key,
     required this.controller,
     required this.labelText,
+    super.key,
     this.keyboardType = TextInputType.text,
     this.validator,
     this.onChanged,

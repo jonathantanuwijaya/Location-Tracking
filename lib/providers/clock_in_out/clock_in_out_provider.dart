@@ -2,18 +2,17 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:tracking_practice/models/geofence_data.dart';
 import 'package:tracking_practice/services/app_services/location_storage_service.dart';
-import 'package:tracking_practice/services/app_services/service_background.dart';
+import 'package:tracking_practice/services/background/service_background.dart';
 
 /// Provider class for managing clock in/out functionality and geofence data
 class ClockInOutProvider extends ChangeNotifier {
+  ClockInOutProvider(this.serviceBackground, this.locationStorageService);
   final ServiceBackground serviceBackground;
   final LocationStorageService locationStorageService;
 
   bool _isClockedIn = false;
   List<GeofenceData> _geofenceData = [];
   String? _error;
-
-  ClockInOutProvider(this.serviceBackground, this.locationStorageService);
 
   bool get isClockedIn => _isClockedIn;
   List<GeofenceData> get geofenceData => List.unmodifiable(_geofenceData);
@@ -111,7 +110,7 @@ class ClockInOutProvider extends ChangeNotifier {
   }
 
   void _handleError(String message, Object error) {
-    _error = '$message: ${error.toString()}';
+    _error = '$message: $error';
     log('$message: $error');
     notifyListeners();
   }

@@ -1,17 +1,16 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:tracking_practice/services/app_services/background_service_manager.dart';
+import 'package:tracking_practice/services/background/background_service_manager.dart';
 
 class ServiceBackground {
-  static final ServiceBackground instance = ServiceBackground._internal();
-
   factory ServiceBackground() {
     return instance;
   }
 
   ServiceBackground._internal();
+  static final ServiceBackground instance = ServiceBackground._internal();
 
   Future<bool> requestLocationPermission() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    var serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await Geolocator.openLocationSettings();
       if (!serviceEnabled) {
@@ -19,7 +18,7 @@ class ServiceBackground {
       }
     }
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {

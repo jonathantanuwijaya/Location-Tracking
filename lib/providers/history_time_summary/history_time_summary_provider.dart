@@ -30,11 +30,12 @@ class HistoryTimeSummaryProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      final loadedSummaries = await _locationStorageService.getAllLocationTimeSummaries();
-      
+      final loadedSummaries =
+          await _locationStorageService.getAllLocationTimeSummaries();
+
       // Sort summaries by date (newest first)
       loadedSummaries.sort((a, b) => b.date.compareTo(a.date));
-      
+
       _summaries = loadedSummaries;
       _isLoading = false;
       notifyListeners();

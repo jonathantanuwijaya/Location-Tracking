@@ -7,14 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path/path.dart' as path_helper;
 import 'package:path_provider/path_provider.dart';
-import 'package:tracking_practice/services/app_services/service_background.dart';
+import 'package:tracking_practice/core/init/service_locator.dart';
+import 'package:tracking_practice/services/background/service_background.dart';
 
 /// A class responsible for initializing the application components
 class ApplicationInitializer {
   /// Main initialization method that orchestrates all initialization tasks
   Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
-
+    // Initialize service locator
+    setupServiceLocator();
     // Initialize device orientation
     await _initDeviceOrientation();
 
@@ -41,13 +43,13 @@ class ApplicationInitializer {
 
   /// Initialize location services and permissions
   Future<void> _initLocationServices() async {
-    final hasPermission =
-        await ServiceBackground.instance.requestLocationPermission();
+    final serviceBackground = ServiceBackground.instance;
+    final hasPermission = await serviceBackground.requestLocationPermission();
     if (!hasPermission) {
       developer.log('Location permission denied');
     }
 
-    await ServiceBackground.instance.init();
+    await serviceBackground.init();
   }
 
   /// Initialize local storage (Hive)

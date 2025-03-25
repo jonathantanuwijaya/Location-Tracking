@@ -82,10 +82,10 @@ class _GeofenceDataBottomSheetState extends State<GeofenceDataBottomSheet> {
 
   Widget _buildGeofenceCard(BuildContext context, GeofenceData geofence) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16.0),
+      margin: const EdgeInsets.only(bottom: Sizes.p16),
       elevation: 2,
       child: Padding(
-        padding: EdgeInsets.all(Sizes.p16),
+        padding: const EdgeInsets.all(Sizes.p16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

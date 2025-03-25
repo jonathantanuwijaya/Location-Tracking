@@ -55,7 +55,7 @@ lib/
     │   ├── location_tracking_logic.dart # Location tracking logic
     │   └── mappers_logic.dart # Data mapping logic
     └── repository/        # Data repositories
-        ├── location_summary_repository.dart # Location summary updates
+        └──location_summary_repository.dart # Location summary updates
 ```
 
 ## Dependencies

@@ -29,78 +29,132 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
           return Center(child: Text('Error: ${clockInOutProvider.error}'));
         }
 
+        final isClockedIn = clockInOutProvider.isClockedIn;
+        final statusColor =
+            isClockedIn ? Colors.green.shade600 : Colors.red.shade600;
+
         return Scaffold(
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  clockInOutProvider.isClockedIn
-                      ? Icons.timer
-                      : Icons.timer_off,
-                  size: 100,
-                  color:
-                      clockInOutProvider.isClockedIn
-                          ? Colors.green
-                          : Colors.red,
+                  isClockedIn ? Icons.timer_rounded : Icons.timer_off_rounded,
+                  size: 90,
+                  color: statusColor,
                 ),
                 gapH20,
                 Text(
-                  clockInOutProvider.isClockedIn
+                  isClockedIn
                       ? 'Currently Clocked In'
                       : 'Currently Clocked Out',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 gapH40,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => clockInOutProvider.clockIn(),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: Sizes.p40,
-                          vertical: Sizes.p16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Sizes.p30),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Sizes.p16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              isClockedIn
+                                  ? null
+                                  : () => clockInOutProvider.clockIn(),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: Sizes.p16,
+                            ),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.green.shade600,
+                            elevation: 3,
+                            shadowColor: Colors.green.withValues(alpha: 0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(Sizes.p16),
+                            ),
+                          ),
+                          icon: const Icon(Icons.login_rounded),
+                          label: const Text(
+                            'Clock In',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
-                      child: const Text('Clock In'),
-                    ),
-                    ElevatedButton(
-                      onPressed: clockInOutProvider.clockOut,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: Sizes.p40,
-                          vertical: Sizes.p16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Sizes.p30),
+                      gapW12,
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed:
+                              isClockedIn ? clockInOutProvider.clockOut : null,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: Sizes.p16,
+                            ),
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.red.shade600,
+                            elevation: 3,
+                            shadowColor: Colors.red.withValues(alpha: 0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(Sizes.p16),
+                            ),
+                          ),
+                          icon: const Icon(Icons.logout_rounded),
+                          label: const Text(
+                            'Clock Out',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       ),
-                      child: const Text('Clock Out'),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                gapH20,
-                ElevatedButton.icon(
-                  onPressed:
-                      () => _showAddGeofenceBottomSheet(
-                        context,
-                        clockInOutProvider,
+                gapH24,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Sizes.p16),
+                  child: ElevatedButton(
+                    onPressed:
+                        () => _showAddGeofenceBottomSheet(
+                          context,
+                          clockInOutProvider,
+                        ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: Sizes.p16),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onPrimaryContainer,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(Sizes.p16),
                       ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Sizes.p40,
-                      vertical: Sizes.p16,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(Sizes.p30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.add_location_rounded,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                        gapW12,
+                        const Text(
+                          'Add Geofence Location',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  icon: const Icon(Icons.add_location),
-                  label: const Text('Add Geofence'),
                 ),
               ],
             ),
@@ -121,8 +175,9 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Sizes.p20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Sizes.p24)),
       ),
       builder: (context) {
         return AddGeofence(

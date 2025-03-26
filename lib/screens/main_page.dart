@@ -35,16 +35,18 @@ class _MainPageState extends State<MainPage> {
         final selectedIndex = provider.selectedIndex;
         return Scaffold(
           appBar: AppBar(
+            elevation: 0,
             actions: [
               IconButton(
-                icon: const Icon(Icons.map),
+                icon: const Icon(Icons.map_outlined),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
+                    backgroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(Sizes.p16),
+                        top: Radius.circular(Sizes.p24),
                       ),
                     ),
                     builder: (context) => const GeofenceDataBottomSheet(),
@@ -53,14 +55,15 @@ class _MainPageState extends State<MainPage> {
                 tooltip: 'View Geofence Locations',
               ),
               IconButton(
-                icon: const Icon(Icons.history),
+                icon: const Icon(Icons.history_outlined),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
+                    backgroundColor: Colors.white,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(Sizes.p16),
+                        top: Radius.circular(Sizes.p24),
                       ),
                     ),
                     builder: (context) => const HistorySummaryBottomSheet(),
@@ -71,23 +74,39 @@ class _MainPageState extends State<MainPage> {
             ],
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: Text(
-              selectedIndex == 0 ? 'Clock In/Out' : 'Location Summary',
+              selectedIndex == 0 ? 'Clock In Out' : 'Location Summary',
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
           body: _pages[selectedIndex],
           bottomNavigationBar: BottomNavigationBar(
+            elevation: 8,
+            type: BottomNavigationBarType.fixed,
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.access_time),
-                label: 'Clock In/Out',
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: Sizes.p4),
+                  child: Icon(Icons.access_time_rounded),
+                ),
+                label: 'Clock In Out',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.location_on),
+                icon: Padding(
+                  padding: EdgeInsets.only(bottom: Sizes.p4),
+                  child: Icon(Icons.place_rounded),
+                ),
                 label: 'Location Summary',
               ),
             ],
             currentIndex: selectedIndex,
             selectedItemColor: Theme.of(context).colorScheme.primary,
+            unselectedItemColor: Colors.grey.shade600,
+            backgroundColor: Colors.white,
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+            unselectedLabelStyle: const TextStyle(fontSize: 11),
             onTap: (index) => provider.changeTab(index),
           ),
         );

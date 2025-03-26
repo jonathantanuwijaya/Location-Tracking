@@ -14,20 +14,16 @@ void main() {
     test(
       'calculateLocationDurationSummary should create summary with correct location name',
       () {
-        // Arrange
         final locationData = GeofenceData(
           latitude: 37.7749,
           longitude: -122.4194,
           name: 'Office',
         );
-
-        // Act
         final result = backgroundTrackLogic.calculateLocationDurationSummary(
           locationData,
           {},
         );
 
-        // Assert
         expect(result.locationDurations.containsKey('Office'), true);
         expect(
           result.locationDurations['Office'],
@@ -37,7 +33,6 @@ void main() {
     );
 
     test('calculateLocationDurationSummary should use current date', () {
-      // Arrange
       final locationData = GeofenceData(
         latitude: 37.7749,
         longitude: -122.4194,
@@ -45,14 +40,11 @@ void main() {
       );
       final today = DateTime.now().toLocal();
 
-      // Act
       final result = backgroundTrackLogic.calculateLocationDurationSummary(
         locationData,
         {},
       );
 
-      // Assert
-      // Check that the date is today (ignoring time)
       expect(result.date.year, today.year);
       expect(result.date.month, today.month);
       expect(result.date.day, today.day);
@@ -61,7 +53,6 @@ void main() {
     test(
       'calculateLocationDurationSummary should handle different location names',
       () {
-        // Arrange
         final locationData1 = GeofenceData(
           latitude: 37.7749,
           longitude: -122.4194,
@@ -73,7 +64,6 @@ void main() {
           name: 'Traveling',
         );
 
-        // Act
         final result1 = backgroundTrackLogic.calculateLocationDurationSummary(
           locationData1,
           {},
@@ -83,7 +73,6 @@ void main() {
           {},
         );
 
-        // Assert
         expect(result1.locationDurations.containsKey('Office'), true);
         expect(result2.locationDurations.containsKey('Traveling'), true);
       },

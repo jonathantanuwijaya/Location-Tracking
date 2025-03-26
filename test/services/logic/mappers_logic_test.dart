@@ -14,7 +14,6 @@ void main() {
   group('MappersLogic', () {
     group('convertToLocationTimeSummaries', () {
       test('converts valid location data to summaries', () {
-        // Arrange
         final locationData = [
           {
             '10-05-2023': {
@@ -30,22 +29,18 @@ void main() {
           },
         ];
 
-        // Act
         final result = mappersLogic.convertToLocationTimeSummaries(
           locationData,
           dateFormat,
         );
 
-        // Assert
         expect(result.length, 2);
         
-        // First summary
         expect(result[0].date, DateTime(2023, 5, 10));
         expect(result[0].locationDurations.length, 2);
         expect(result[0].locationDurations['Office'], 300);
         expect(result[0].locationDurations['Home'], 120);
         
-        // Second summary
         expect(result[1].date, DateTime(2023, 5, 11));
         expect(result[1].locationDurations.length, 2);
         expect(result[1].locationDurations['Café'], 180);
@@ -53,21 +48,17 @@ void main() {
       });
 
       test('handles empty data list', () {
-        // Arrange
         final locationData = <Map<String, dynamic>>[];
 
-        // Act
         final result = mappersLogic.convertToLocationTimeSummaries(
           locationData,
           dateFormat,
         );
 
-        // Assert
         expect(result, isEmpty);
       });
 
       test('filters out invalid entries', () {
-        // Arrange
         final locationData = [
           {
             '10-05-2023': {
@@ -83,13 +74,11 @@ void main() {
           },
         ];
 
-        // Act
         final result = mappersLogic.convertToLocationTimeSummaries(
           locationData,
           dateFormat,
         );
 
-        // Assert
         expect(result.length, 1);
         expect(result[0].date, DateTime(2023, 5, 10));
       });
@@ -97,7 +86,6 @@ void main() {
 
     group('mergeLocationSummaryIntoStorage', () {
       test('adds new date entry when it does not exist', () {
-        // Arrange
         final storedData = <Map<String, dynamic>>[
           {
             '10-05-2023': {
@@ -112,14 +100,12 @@ void main() {
           locationDurations: {'Café': 180, 'Library': 90},
         );
 
-        // Act
         final result = mappersLogic.mergeLocationSummaryIntoStorage(
           storedData,
           newSummary,
           '11-05-2023',
         );
 
-        // Assert
         expect(result.length, 2);
         final newEntry = result.firstWhere(
           (entry) => entry.containsKey('11-05-2023'),
@@ -129,7 +115,6 @@ void main() {
       });
 
       test('merges durations for existing date entry', () {
-        // Arrange
         final storedData = <Map<String, dynamic>>[
           {
             '10-05-2023': {
@@ -144,26 +129,23 @@ void main() {
           locationDurations: {'Office': 200, 'Café': 180},
         );
 
-        // Act
         final result = mappersLogic.mergeLocationSummaryIntoStorage(
           storedData,
           newSummary,
           '10-05-2023',
         );
 
-        // Assert
         expect(result.length, 1);
         final updatedEntry = result.first;
         expect(
           updatedEntry['10-05-2023']['locationDurations']['Office'],
-          500, // 300 + 200
+          500,
         );
         expect(updatedEntry['10-05-2023']['locationDurations']['Home'], 120);
         expect(updatedEntry['10-05-2023']['locationDurations']['Café'], 180);
       });
 
       test('handles empty stored data', () {
-        // Arrange
         final storedData = <Map<String, dynamic>>[];
 
         final newSummary = LocationTimeSummary(
@@ -171,14 +153,12 @@ void main() {
           locationDurations: {'Office': 300, 'Home': 120},
         );
 
-        // Act
         final result = mappersLogic.mergeLocationSummaryIntoStorage(
           storedData,
           newSummary,
           '10-05-2023',
         );
 
-        // Assert
         expect(result.length, 1);
         expect(result.first['10-05-2023']['locationDurations']['Office'], 300);
         expect(result.first['10-05-2023']['locationDurations']['Home'], 120);

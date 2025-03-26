@@ -24,7 +24,6 @@ void main() {
       ),
     ];
 
-    // Setup default mock responses
     when(() => mockStorageService.getAllLocationTimeSummaries())
         .thenAnswer((_) async => testSummaries);
 
@@ -38,13 +37,11 @@ void main() {
     });
 
     test('loadSummaries should update state with sorted summaries', () async {
-      // Wait for initial load
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(provider.isLoading, false);
       expect(provider.error, null);
       expect(provider.summaries.length, equals(2));
-      // Verify sorting (newest first)
       expect(provider.summaries.first.date, equals(DateTime(2023, 1, 2)));
       expect(provider.summaries.last.date, equals(DateTime(2023, 1, 1)));
     });
@@ -71,10 +68,8 @@ void main() {
     });
 
     test('refreshSummaries should reload data', () async {
-      // Wait for initial load
       await Future.delayed(const Duration(milliseconds: 100));
 
-      // Update mock response for refresh
       final updatedSummaries = [
         LocationTimeSummary(
           date: DateTime(2023, 1, 3),

@@ -20,7 +20,6 @@ void main() {
       locationDurations: {'Office': 3600, 'Home': 7200},
     );
 
-    // Setup default mock responses
     when(() => mockRepository.getLocationUpdates())
         .thenAnswer((_) => Stream.value(testSummary));
 
@@ -38,7 +37,6 @@ void main() {
     });
 
     test('should update state when receiving location updates', () async {
-      // Wait for stream to emit value
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(provider.isLoading, false);
@@ -47,14 +45,12 @@ void main() {
     });
 
     test('should handle stream error', () async {
-      // Setup error case
       final mockRepository = MockLocationTimeSummaryRepository();
       when(() => mockRepository.getLocationUpdates())
           .thenAnswer((_) => Stream.error('Test error'));
 
       final provider = LocationTimeSummaryProvider(mockRepository);
 
-      // Wait for stream to emit error
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(provider.isLoading, false);
@@ -72,13 +68,11 @@ void main() {
       final provider = LocationTimeSummaryProvider(mockRepository);
       provider.dispose();
 
-      // Verify that adding to stream after dispose doesn't update provider
       controller.add(testSummary);
       await Future.delayed(const Duration(milliseconds: 100));
 
       expect(provider.summary, null);
       
-      // Cleanup
       await controller.close();
     });
   });

@@ -7,16 +7,12 @@ import 'mocks/model_mocks.dart';
 import 'mocks/provider_mocks.dart';
 import 'mocks/service_mocks.dart';
 
-/// Common test utilities and helper functions
-
-/// Register all fallback values needed for testing
 void registerAllFallbackValues() {
   registerFallbackValues();
   registerModelFallbackValues();
   registerServiceFallbackValues();
 }
 
-/// Create a default test location time summary
 LocationTimeSummary createTestLocationSummary() {
   return TestLocationTimeSummary(
     date: DateTime(2023, 5, 10),
@@ -33,7 +29,6 @@ LocationTimeSummary createTestLocationSummary() {
   );
 }
 
-/// Wrapper to create a testable widget with MaterialApp
 Widget createTestableWidget(Widget child) {
   return MaterialApp(
     home: Scaffold(

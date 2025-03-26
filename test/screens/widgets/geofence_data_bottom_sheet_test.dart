@@ -8,11 +8,8 @@ import 'package:tracking_practice/screens/widgets/base/base_error_state.dart';
 import 'package:tracking_practice/screens/widgets/geofence_data_bottom_sheet.dart';
 import 'package:tracking_practice/services/app_services/location_storage_service.dart';
 
-// Create a mock for the LocationStorageService
 class MockLocationStorageService extends Mock implements LocationStorageService {}
 
-// Custom bottom sheet implementation for testing without using the actual GeofenceDataBottomSheet
-// to avoid Hive initialization issues
 class MockGeofenceDataBottomSheet extends StatefulWidget {
   final MockLocationStorageService mockStorageService;
 
@@ -201,26 +198,19 @@ void main() {
   
   group('Geofence Data Bottom Sheet Tests', () {
     testWidgets('shows loading state initially', (WidgetTester tester) async {
-      // Arrange
       final fixture = GeofenceDataBottomSheetTestFixture.withData();
       
-      // Act - don't await for the future to complete
       await tester.pumpWidget(fixture.buildTestableWidget());
       
-      // Assert - should show loading indicator
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
     testWidgets('shows geofence data when loaded successfully', (WidgetTester tester) async {
-      // Arrange
       final fixture = GeofenceDataBottomSheetTestFixture.withData();
       
-      // Act
       await tester.pumpWidget(fixture.buildTestableWidget());
-      // Wait for async operations to complete
       await tester.pumpAndSettle();
       
-      // Assert
       expect(find.text('Geofence Locations'), findsOneWidget);
       expect(find.text('Office'), findsOneWidget);
       expect(find.text('Home'), findsOneWidget);
@@ -231,50 +221,22 @@ void main() {
     });
 
     testWidgets('shows empty state when no geofence data is available', (WidgetTester tester) async {
-      // Arrange
       final fixture = GeofenceDataBottomSheetTestFixture.empty();
       
-      // Act
       await tester.pumpWidget(fixture.buildTestableWidget());
       await tester.pumpAndSettle();
       
-      // Assert
       expect(find.text('No geofence locations available'), findsOneWidget);
       expect(find.byIcon(Icons.location_off), findsOneWidget);
     });
 
     testWidgets('shows error state when loading fails', (WidgetTester tester) async {
-      // Arrange
       final fixture = GeofenceDataBottomSheetTestFixture.withError();
       
-      // Act
       await tester.pumpWidget(fixture.buildTestableWidget());
       await tester.pumpAndSettle();
       
-      // Assert
       expect(find.text('Failed to load geofence data'), findsOneWidget);
     });
-
-    // Skipping refresh test as our mock implementation doesn't support it
-    /*
-    testWidgets('calls refresh when pull-to-refresh is triggered', (WidgetTester tester) async {
-      // Arrange
-      final fixture = GeofenceDataBottomSheetTestFixture.withData();
-      
-      // Act
-      await tester.pumpWidget(fixture.buildTestableWidget());
-      await tester.pumpAndSettle();
-      
-      // Verify initial call
-      verify(() => fixture.locationStorageService.getAllGeofenceData()).called(1);
-      
-      // Simulate refresh
-      await tester.drag(find.text('Geofence Locations'), const Offset(0, 300));
-      await tester.pumpAndSettle();
-      
-      // Verify additional call
-      verify(() => fixture.locationStorageService.getAllGeofenceData()).called(1);
-    });
-    */
   });
 } 

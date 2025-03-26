@@ -147,7 +147,7 @@ class GeofenceDataBottomSheetTestFixture {
 
   GeofenceDataBottomSheetTestFixture({required this.locationStorageService});
 
-  // Different test scenarios
+
   static GeofenceDataBottomSheetTestFixture withData() {
     final service = MockLocationStorageService();
     final geofenceData = [

@@ -142,9 +142,6 @@ void main() {
       await tester.pumpWidget(fixture.buildTestableWidget());
       await tester.pumpAndSettle();
 
-      // The bottom sheet test is more difficult to test directly due to how
-      // showModalBottomSheet works in widget tests
-      // We'll check for the Add Geofence button and that it exists
       expect(find.text('Add Geofence Location'), findsOneWidget);
     });
   });

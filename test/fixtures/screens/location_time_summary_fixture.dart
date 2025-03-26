@@ -9,17 +9,13 @@ import '../mocks/model_mocks.dart';
 import '../mocks/provider_mocks.dart';
 import '../test_utils.dart';
 
-/// Test fixture for the LocationTimeSummaryPage
 class LocationTimeSummaryPageFixture {
-  /// Provider mock that will be used in tests
   final MockLocationTimeSummaryProvider locationTimeSummaryProvider;
 
-  /// Construct the fixture with required provider
   const LocationTimeSummaryPageFixture({
     required this.locationTimeSummaryProvider,
   });
 
-  /// Factory for loading state
   static LocationTimeSummaryPageFixture loading() {
     final provider = MockLocationTimeSummaryProvider();
     when(() => provider.summary).thenReturn(null);
@@ -30,23 +26,20 @@ class LocationTimeSummaryPageFixture {
     );
   }
 
-  /// Factory for state with data
   static LocationTimeSummaryPageFixture withData() {
     final provider = MockLocationTimeSummaryProvider();
-    
-    // Create a test summary with predefined formatted durations
+
     final summary = createTestLocationSummary();
-    
+
     when(() => provider.summary).thenReturn(summary);
     when(() => provider.error).thenReturn(null);
     when(() => provider.isLoading).thenReturn(false);
-    
+
     return LocationTimeSummaryPageFixture(
       locationTimeSummaryProvider: provider,
     );
   }
 
-  /// Factory for error state
   static LocationTimeSummaryPageFixture withError({
     String errorMessage = 'Failed to load location data',
   }) {
@@ -82,4 +75,4 @@ class LocationTimeSummaryPageFixture {
       ),
     );
   }
-} 
+}

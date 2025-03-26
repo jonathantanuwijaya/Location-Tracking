@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:tracking_practice/core/constants/storage_key.dart';
 import 'package:tracking_practice/core/util/hive_storage.dart';
 import 'package:tracking_practice/models/geofence_data.dart';
 import 'package:tracking_practice/models/location_time_summary.dart';
@@ -19,9 +18,7 @@ void main() {
   setUp(() {
     mockStorage = MockHiveStorage();
     service = LocationStorageService(storage: mockStorage);
-    
-    registerFallbackValue(StorageKeyConstant.clockInOutData);
-    registerFallbackValue(StorageKeyConstant.geofenceData);
+
     registerFallbackValue('any-data');
   });
 
@@ -32,17 +29,14 @@ void main() {
           date: DateTime(2023, 5, 10),
           locationDurations: {'Office': 300, 'Home': 120},
         );
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenAnswer((_) async => null);
-        when(() => mockStorage.insert(any(), any()))
-            .thenAnswer((_) async => {});
+        when(() => mockStorage.get(any())).thenAnswer((_) async => null);
+        when(
+          () => mockStorage.insert(any(), any()),
+        ).thenAnswer((_) async => {});
 
         await service.storeLocationData(locationSummary);
 
-        verify(() => mockStorage.insert(
-              StorageKeyConstant.clockInOutData,
-              any(),
-            )).called(1);
+        verify(() => mockStorage.insert(any(), any())).called(1);
       });
 
       test('merges data when existing data for date exists', () async {
@@ -50,7 +44,7 @@ void main() {
           date: DateTime(2023, 5, 10),
           locationDurations: {'Office': 300, 'Home': 120},
         );
-        
+
         final existingData = [
           {
             '10-05-2023': {
@@ -59,27 +53,30 @@ void main() {
             },
           },
         ];
-        
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenAnswer((_) async => jsonEncode(existingData));
-        
+
+        when(
+          () => mockStorage.get(any()),
+        ).thenAnswer((_) async => jsonEncode(existingData));
+
         List<dynamic> capturedData = [];
-        when(() => mockStorage.insert(any(), any()))
-            .thenAnswer((invocation) {
-              final data = invocation.positionalArguments[1] as String;
-              capturedData.add(jsonDecode(data));
-              return Future.value();
-            });
+        when(() => mockStorage.insert(any(), any())).thenAnswer((invocation) {
+          final data = invocation.positionalArguments[1] as String;
+          capturedData.add(jsonDecode(data));
+          return Future.value();
+        });
 
         await service.storeLocationData(locationSummary);
 
         verify(() => mockStorage.insert(any(), any())).called(1);
-        
+
         final List<dynamic> decodedJson = capturedData.first as List;
-        final Map<String, dynamic> firstEntry = decodedJson.first as Map<String, dynamic>;
-        final Map<String, dynamic> dateEntry = firstEntry['10-05-2023'] as Map<String, dynamic>;
-        final Map<String, dynamic> durations = dateEntry['locationDurations'] as Map<String, dynamic>;
-        
+        final Map<String, dynamic> firstEntry =
+            decodedJson.first as Map<String, dynamic>;
+        final Map<String, dynamic> dateEntry =
+            firstEntry['10-05-2023'] as Map<String, dynamic>;
+        final Map<String, dynamic> durations =
+            dateEntry['locationDurations'] as Map<String, dynamic>;
+
         expect(durations['Office'], 500);
         expect(durations['Home'], 120);
         expect(durations['Café'], 100);
@@ -90,8 +87,7 @@ void main() {
           date: DateTime(2023, 5, 10),
           locationDurations: {'Office': 300, 'Home': 120},
         );
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenThrow('Storage error');
+        when(() => mockStorage.get(any())).thenThrow('Storage error');
 
         await expectLater(
           () => service.storeLocationData(locationSummary),
@@ -110,8 +106,9 @@ void main() {
             },
           },
         ];
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenAnswer((_) async => jsonEncode(mockData));
+        when(
+          () => mockStorage.get(any()),
+        ).thenAnswer((_) async => jsonEncode(mockData));
 
         final result = await service.getAllLocationData();
 
@@ -120,8 +117,7 @@ void main() {
       });
 
       test('returns empty list when no data', () async {
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenAnswer((_) async => null);
+        when(() => mockStorage.get(any())).thenAnswer((_) async => null);
 
         final result = await service.getAllLocationData();
 
@@ -129,8 +125,7 @@ void main() {
       });
 
       test('returns empty list on error', () async {
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenThrow('Storage error');
+        when(() => mockStorage.get(any())).thenThrow('Storage error');
 
         final result = await service.getAllLocationData();
 
@@ -148,8 +143,9 @@ void main() {
             },
           },
         ];
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenAnswer((_) async => jsonEncode(mockData));
+        when(
+          () => mockStorage.get(any()),
+        ).thenAnswer((_) async => jsonEncode(mockData));
 
         final result = await service.getAllLocationTimeSummaries();
 
@@ -160,8 +156,7 @@ void main() {
       });
 
       test('returns empty list when no data', () async {
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenAnswer((_) async => null);
+        when(() => mockStorage.get(any())).thenAnswer((_) async => null);
 
         final result = await service.getAllLocationTimeSummaries();
 
@@ -169,8 +164,7 @@ void main() {
       });
 
       test('handles errors gracefully', () async {
-        when(() => mockStorage.get(StorageKeyConstant.clockInOutData))
-            .thenThrow('Storage error');
+        when(() => mockStorage.get(any())).thenThrow('Storage error');
 
         final result = await service.getAllLocationTimeSummaries();
 
@@ -185,38 +179,34 @@ void main() {
           latitude: 37.4220,
           longitude: -122.0841,
         );
-        
+
         final existingGeofences = [
-          {
-            'name': 'Home',
-            'latitude': 37.7749,
-            'longitude': -122.4194,
-          },
+          {'name': 'Home', 'latitude': 37.7749, 'longitude': -122.4194},
         ];
-        
-        when(() => mockStorage.get(StorageKeyConstant.geofenceData))
-            .thenAnswer((_) async => jsonEncode(existingGeofences));
-        
+
+        when(
+          () => mockStorage.get(any()),
+        ).thenAnswer((_) async => jsonEncode(existingGeofences));
+
         List<dynamic> capturedData = [];
-        when(() => mockStorage.insert(any(), any()))
-            .thenAnswer((invocation) {
-              final data = invocation.positionalArguments[1] as String;
-              capturedData.add(jsonDecode(data));
-              return Future.value();
-            });
+        when(() => mockStorage.insert(any(), any())).thenAnswer((invocation) {
+          final data = invocation.positionalArguments[1] as String;
+          capturedData.add(jsonDecode(data));
+          return Future.value();
+        });
 
         await service.storeGeofenceData(geofenceData);
 
         verify(() => mockStorage.insert(any(), any())).called(1);
-        
+
         final List<dynamic> decodedJson = capturedData.first as List;
         expect(decodedJson.length, 2);
-        
+
         final newOfficeEntry = decodedJson.firstWhere(
           (item) => (item as Map<String, dynamic>)['name'] == 'New Office',
           orElse: () => null,
         );
-        
+
         expect(newOfficeEntry, isNotNull);
         expect(newOfficeEntry['latitude'], 37.422);
         expect(newOfficeEntry['longitude'], -122.0841);
@@ -228,33 +218,29 @@ void main() {
           latitude: 37.8888,
           longitude: -122.9999,
         );
-        
+
         final existingGeofences = [
-          {
-            'name': 'Home',
-            'latitude': 37.7749,
-            'longitude': -122.4194,
-          },
+          {'name': 'Home', 'latitude': 37.7749, 'longitude': -122.4194},
         ];
-        
-        when(() => mockStorage.get(StorageKeyConstant.geofenceData))
-            .thenAnswer((_) async => jsonEncode(existingGeofences));
-        
+
+        when(
+          () => mockStorage.get(any()),
+        ).thenAnswer((_) async => jsonEncode(existingGeofences));
+
         List<dynamic> capturedData = [];
-        when(() => mockStorage.insert(any(), any()))
-            .thenAnswer((invocation) {
-              final data = invocation.positionalArguments[1] as String;
-              capturedData.add(jsonDecode(data));
-              return Future.value();
-            });
+        when(() => mockStorage.insert(any(), any())).thenAnswer((invocation) {
+          final data = invocation.positionalArguments[1] as String;
+          capturedData.add(jsonDecode(data));
+          return Future.value();
+        });
 
         await service.storeGeofenceData(geofenceData);
 
         verify(() => mockStorage.insert(any(), any())).called(1);
-        
+
         final List<dynamic> decodedJson = capturedData.first as List;
         expect(decodedJson.length, 1);
-        
+
         final geofence = decodedJson.first as Map<String, dynamic>;
         expect(geofence['name'], 'Home');
         expect(geofence['latitude'], 37.8888);
@@ -267,8 +253,7 @@ void main() {
           latitude: 37.4220,
           longitude: -122.0841,
         );
-        when(() => mockStorage.get(StorageKeyConstant.geofenceData))
-            .thenThrow('Storage error');
+        when(() => mockStorage.get(any())).thenThrow('Storage error');
 
         await expectLater(
           () => service.storeGeofenceData(geofenceData),
@@ -280,19 +265,12 @@ void main() {
     group('getAllGeofenceData', () {
       test('returns parsed geofence data when available', () async {
         final mockData = [
-          {
-            'name': 'Office',
-            'latitude': 37.4220,
-            'longitude': -122.0841,
-          },
-          {
-            'name': 'Home',
-            'latitude': 37.7749,
-            'longitude': -122.4194,
-          },
+          {'name': 'Office', 'latitude': 37.4220, 'longitude': -122.0841},
+          {'name': 'Home', 'latitude': 37.7749, 'longitude': -122.4194},
         ];
-        when(() => mockStorage.get(StorageKeyConstant.geofenceData))
-            .thenAnswer((_) async => jsonEncode(mockData));
+        when(
+          () => mockStorage.get(any()),
+        ).thenAnswer((_) async => jsonEncode(mockData));
 
         final result = await service.getAllGeofenceData();
 
@@ -304,8 +282,7 @@ void main() {
       });
 
       test('returns empty list when no data', () async {
-        when(() => mockStorage.get(StorageKeyConstant.geofenceData))
-            .thenAnswer((_) async => null);
+        when(() => mockStorage.get(any())).thenAnswer((_) async => null);
 
         final result = await service.getAllGeofenceData();
 
@@ -313,8 +290,7 @@ void main() {
       });
 
       test('returns empty list on error', () async {
-        when(() => mockStorage.get(StorageKeyConstant.geofenceData))
-            .thenThrow('Storage error');
+        when(() => mockStorage.get(any())).thenThrow('Storage error');
 
         final result = await service.getAllGeofenceData();
 
@@ -322,4 +298,4 @@ void main() {
       });
     });
   });
-} 
+}

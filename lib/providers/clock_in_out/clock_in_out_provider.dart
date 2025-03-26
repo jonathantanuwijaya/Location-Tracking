@@ -4,7 +4,6 @@ import 'package:tracking_practice/models/geofence_data.dart';
 import 'package:tracking_practice/services/app_services/location_storage_service.dart';
 import 'package:tracking_practice/services/background/service_background.dart';
 
-/// Provider class for managing clock in/out functionality and geofence data
 class ClockInOutProvider extends ChangeNotifier {
   ClockInOutProvider(this.serviceBackground, this.locationStorageService);
   final ServiceBackground serviceBackground;

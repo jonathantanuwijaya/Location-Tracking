@@ -14,9 +14,7 @@ import 'package:tracking_practice/services/logic/background_track_logic.dart';
 import 'package:tracking_practice/services/logic/location_tracking_logic.dart';
 
 /// Handles background service operations for location tracking
-/// Responsible for managing the service lifecycle and coordinating periodic location updates
 class BackgroundServiceHandler implements IBackgroundServiceHandler {
-  /// Creates a new [BackgroundServiceHandler] instance with optional dependencies
   BackgroundServiceHandler({
     GeolocatorLocationService? locationService,
     LocationStorageService? storageService,
@@ -27,7 +25,8 @@ class BackgroundServiceHandler implements IBackgroundServiceHandler {
     final locationServiceImpl = locationService ?? GeolocatorLocationService();
     final storageServiceImpl = storageService ?? LocationStorageService();
     final trackingLogicImpl = trackingLogic ?? LocationTrackingLogic();
-    final backgroundTrackLogicImpl = backgroundTrackLogic ?? BackgroundTrackLogic();
+    final backgroundTrackLogicImpl =
+        backgroundTrackLogic ?? BackgroundTrackLogic();
     final appInitializer = appInit ?? ApplicationInitializer();
 
     _serviceHelper = BackgroundServiceHelper(
@@ -39,19 +38,10 @@ class BackgroundServiceHandler implements IBackgroundServiceHandler {
     );
   }
 
-  /// Helper for delegating complex operations
   late final BackgroundServiceHelper _serviceHelper;
-  
-  /// Timer for scheduling periodic location updates
   Timer? _periodicUpdateTimer;
-  
-  /// Current location summary data
   LocationTimeSummary? _currentLocationSummary;
-  
-  /// Flag indicating if the service is running
   bool _isServiceRunning = true;
-  
-  /// Duration records for each location
   Map<String, int> _locationDurations = {};
 
   @override
@@ -75,8 +65,6 @@ class BackgroundServiceHandler implements IBackgroundServiceHandler {
     );
   }
 
-  /// Handles the timer callback for periodic location updates
-  /// Checks if service is running and processes the update
   Future<void> handlePeriodicUpdateTimer(
     ServiceInstance service,
     Timer timer,
@@ -100,10 +88,7 @@ class BackgroundServiceHandler implements IBackgroundServiceHandler {
   @override
   Future<void> processLocationUpdate(ServiceInstance service) async {
     try {
-      // Initialize storage for this update
       await _serviceHelper.initializeStorage();
-      
-      // Process location data and update summary
       await _serviceHelper.fetchAndProcessLocationData(
         service,
         _locationDurations,
@@ -112,12 +97,10 @@ class BackgroundServiceHandler implements IBackgroundServiceHandler {
     } catch (e) {
       log('Failed to process location update: $e');
     } finally {
-      // Always close storage connections
       await _serviceHelper.closeStorageConnections();
     }
   }
 
-  /// Updates the current location summary and durations when new data is available
   void updateLocationSummary(
     LocationTimeSummary summary,
     Map<String, int> updatedDurations,
@@ -126,7 +109,6 @@ class BackgroundServiceHandler implements IBackgroundServiceHandler {
     _locationDurations = updatedDurations;
   }
 
-  /// Registers a listener for service stop events
   void registerServiceStopListener(ServiceInstance service) {
     service.on(ServicePortKey.stopService).listen((event) async {
       await cleanupAndStopService(service);
@@ -135,10 +117,11 @@ class BackgroundServiceHandler implements IBackgroundServiceHandler {
 
   @override
   Future<void> cleanupAndStopService(ServiceInstance service) async {
-    // Save data and stop service
-    await _serviceHelper.cleanupAndStopService(service, _currentLocationSummary);
-    
-    // Clean up resources
+    await _serviceHelper.cleanupAndStopService(
+      service,
+      _currentLocationSummary,
+    );
+
     _isServiceRunning = false;
     _periodicUpdateTimer?.cancel();
   }

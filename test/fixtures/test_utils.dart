@@ -18,8 +18,8 @@ LocationTimeSummary createTestLocationSummary() {
     date: DateTime(2023, 5, 10),
     locationDurations: {
       'Office': 330 * 60, // 5h 30m in seconds
-      'Home': 135 * 60,   // 2h 15m in seconds
-      'Café': 45 * 60,    // 45m in seconds
+      'Home': 135 * 60, // 2h 15m in seconds
+      'Café': 45 * 60, // 45m in seconds
     },
     formattedDurations: {
       'Office': '5h 30m',
@@ -30,9 +30,17 @@ LocationTimeSummary createTestLocationSummary() {
 }
 
 Widget createTestableWidget(Widget child) {
-  return MaterialApp(
-    home: Scaffold(
-      body: child,
-    ),
-  );
-} 
+  return MaterialApp(home: Scaffold(body: child));
+}
+
+// Helper to dump the widget tree for debugging
+void dumpWidgetTree(WidgetTester tester) {
+  debugPrint('Widget tree:');
+  debugPrint('${tester.allWidgets}');
+
+  for (final widget in tester.allWidgets) {
+    if (widget is ElevatedButton) {
+      debugPrint('Found ElevatedButton: $widget');
+    }
+  }
+}

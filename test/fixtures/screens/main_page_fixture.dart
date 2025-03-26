@@ -86,8 +86,18 @@ class MainPageFixture {
           value: historyTimeSummaryProvider,
         ),
       ],
-      child: const MaterialApp(
-        home: MainPage(),
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: Colors.blue,
+          colorScheme: ColorScheme.light(
+            primary: Colors.blue,
+            inversePrimary: Colors.blue.shade200,
+            onPrimary: Colors.white,
+            primaryContainer: Colors.blue.shade100,
+            onPrimaryContainer: Colors.blue.shade900,
+          ),
+        ),
+        home: const MainPage(),
       ),
     );
   }

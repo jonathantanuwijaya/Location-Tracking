@@ -24,7 +24,7 @@ class LocationTimeSummaryPageFixture {
     final provider = MockLocationTimeSummaryProvider();
     when(() => provider.summary).thenReturn(null);
     when(() => provider.error).thenReturn(null);
-    when(() => provider.isLoading).thenReturn(true);
+    when(() => provider.isLoading).thenReturn(false);
     return LocationTimeSummaryPageFixture(
       locationTimeSummaryProvider: provider,
     );
@@ -62,10 +62,22 @@ class LocationTimeSummaryPageFixture {
   /// Build a testable widget with the configured fixture
   Widget buildTestableWidget() {
     return MaterialApp(
-      home: ChangeNotifierProvider<LocationTimeSummaryProvider>.value(
-        value: locationTimeSummaryProvider,
-        child: const Scaffold(
-          body: LocationTimeSummaryPage(),
+      theme: ThemeData(
+        primaryColor: Colors.blue,
+        colorScheme: ColorScheme.light(
+          primary: Colors.blue,
+          onPrimary: Colors.white,
+          primaryContainer: Colors.blue.shade100,
+          onPrimaryContainer: Colors.blue.shade900,
+        ),
+      ),
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ChangeNotifierProvider<LocationTimeSummaryProvider>.value(
+            value: locationTimeSummaryProvider,
+            child: const LocationTimeSummaryPage(),
+          ),
         ),
       ),
     );

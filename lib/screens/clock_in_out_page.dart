@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tracking_practice/core/constants/app_sizes.dart';
+import 'package:tracking_practice/core/constants/widget_key.dart';
 import 'package:tracking_practice/providers/clock_in_out/clock_in_out_provider.dart';
 import 'package:tracking_practice/screens/widgets/add_geofence_bottom_sheet.dart';
 
@@ -60,6 +61,7 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
+                          key: WidgetKey.clockInButton,
                           onPressed:
                               isClockedIn
                                   ? null
@@ -89,6 +91,7 @@ class _ClockInOutPageState extends State<ClockInOutPage> {
                       gapW12,
                       Expanded(
                         child: ElevatedButton.icon(
+                          key: WidgetKey.clockOutButton,
                           onPressed:
                               isClockedIn ? clockInOutProvider.clockOut : null,
                           style: ElevatedButton.styleFrom(

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:tracking_practice/providers/clock_in_out/clock_in_out_provider.dart';
 import 'package:tracking_practice/screens/clock_in_out_page.dart';
 import 'package:tracking_practice/screens/widgets/add_geofence_bottom_sheet.dart';
+import 'package:tracking_practice/core/constants/widget_key.dart';
 
 class MockClockInOutProvider extends Mock implements ClockInOutProvider {}
 
@@ -109,10 +110,10 @@ void main() {
       await tester.pumpWidget(fixture.buildTestableWidget());
       await tester.pumpAndSettle();
 
-      final textFinder = find.text('Clock In');
-      expect(textFinder, findsOneWidget);
+      final buttonFinder = find.byKey(WidgetKey.clockInButton);
+      expect(buttonFinder, findsOneWidget);
 
-      await tester.tap(textFinder);
+      await tester.tap(buttonFinder);
       await tester.pumpAndSettle();
 
       verify(() => fixture.clockInOutProvider.clockIn()).called(1);
@@ -125,10 +126,10 @@ void main() {
 
       await tester.pumpWidget(fixture.buildTestableWidget());
       await tester.pumpAndSettle();
-      final textFinder = find.text('Clock Out');
-      expect(textFinder, findsOneWidget);
+      final buttonFinder = find.byKey(WidgetKey.clockOutButton);
+      expect(buttonFinder, findsOneWidget);
 
-      await tester.tap(textFinder);
+      await tester.tap(buttonFinder);
       await tester.pumpAndSettle();
 
       verify(() => fixture.clockInOutProvider.clockOut()).called(1);
